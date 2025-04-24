@@ -87,13 +87,14 @@ if HAVE_TE and is_te_min_version("2.2"):
     ) -> None:
         if len(model_params) == 0:
             return
-        if fsdp_shard_model_params is not None:
-            # TODO: @jianbinc, @kunlunl to add support for using FSDP with --fp8-param-gather
-            raise NotImplementedError("FSDP with --fp8-param-gather is not supported in TE 2.2+")
 
         from transformer_engine.pytorch.tensor.utils import cast_master_weights_to_fp8
 
-        cast_master_weights_to_fp8(model_params, main_params, start_offsets, data_parallel_group)
+        args = [model_params, main_params, start_offsets, data_parallel_group]
+        if fsdp_shard_model_params is not None:
+            args.append(fsdp_shard_model_params)
+
+        cast_master_weights_to_fp8(*args)
 
     def _correct_amax_history_if_needed_impl(model: List[torch.nn.Module]) -> None:
         pass
